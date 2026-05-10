@@ -1,158 +1,123 @@
-import React, {
-  useContext,
-} from 'react';
-
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-
-import {
-  AuthContext,
-} from '../../context/AuthContext';
+import React, { useContext } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { AuthContext } from "../../context/AuthContext";
+import Header from "../../components/Header";
+import { COLORS } from "../../styles/colors";
 
 export default function HomeScreen() {
-
-  const {
-    role,
-  } = useContext(AuthContext);
+  const { role } = useContext(AuthContext);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe}>
+      <Header />
+      <View style={styles.container}>
 
-      <Text style={styles.title}>
-        PaleoAR
-      </Text>
-
-      {/* ADMIN */}
-      {role === 'admin' && (
-        <View style={styles.adminBox}>
-
-          <Text style={styles.adminTitle}>
-            Panel Administrador
+        <View style={styles.hero}>
+          <Text style={styles.greeting}>Bienvenido, Explorador</Text>
+          <Text style={styles.heroTitle}>Descubre el{"\n"}pasado jurásico</Text>
+          <Text style={styles.heroSub}>
+            Escanea fósiles, explora el mapa y colecciona dinosaurios en AR.
           </Text>
-
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>
-              Agregar Dinosaurio
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>
-              Administrar Usuarios
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>
-              Agregar Administrador
-            </Text>
-          </TouchableOpacity>
-
         </View>
-      )}
 
-      {/* PLAYER */}
-      {role === 'player' && (
-        <View style={styles.playerBox}>
-
-          <Text style={styles.playerTitle}>
-            Bienvenido Explorador
-          </Text>
-
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>
-              Escanear Fósil
-            </Text>
+        <View style={styles.grid}>
+          <TouchableOpacity style={[styles.card, styles.cardPrimary]} activeOpacity={0.85}>
+            <Ionicons name="scan" size={28} color={COLORS.surface} />
+            <Text style={styles.cardLabelLight}>Escanear Fósil</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>
-              Ver Colección
-            </Text>
+          <TouchableOpacity style={[styles.card, styles.cardSurface]} activeOpacity={0.85}>
+            <Ionicons name="layers-outline" size={28} color={COLORS.primary} />
+            <Text style={styles.cardLabel}>Mi Colección</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity style={[styles.card, styles.cardSurface]} activeOpacity={0.85}>
+            <Ionicons name="map-outline" size={28} color={COLORS.primary} />
+            <Text style={styles.cardLabel}>Mapa AR</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.card, styles.cardAccent]} activeOpacity={0.85}>
+            <Ionicons name="trophy-outline" size={28} color={COLORS.surface} />
+            <Text style={styles.cardLabelLight}>Logros</Text>
+          </TouchableOpacity>
         </View>
-      )}
 
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: COLORS.surface },
   container: {
     flex: 1,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    backgroundColor: '#F8F7F4',
-
+    backgroundColor: COLORS.background,
     padding: 20,
   },
-
-  title: {
-    fontSize: 40,
-
-    fontWeight: '900',
-
-    color: '#1a4d2e',
-
-    marginBottom: 40,
+  hero: {
+    paddingVertical: 24,
   },
-
-  adminBox: {
-    width: '100%',
+  greeting: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.primaryLight,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginBottom: 8,
   },
-
-  playerBox: {
-    width: '100%',
+  heroTitle: {
+    fontSize: 34,
+    fontWeight: "900",
+    color: COLORS.foreground,
+    lineHeight: 40,
+    marginBottom: 12,
   },
-
-  adminTitle: {
-    fontSize: 24,
-
-    fontWeight: '700',
-
-    marginBottom: 20,
-
-    color: '#1a4d2e',
-
-    textAlign: 'center',
+  heroSub: {
+    fontSize: 14,
+    color: COLORS.muted,
+    lineHeight: 22,
+    maxWidth: 280,
   },
-
-  playerTitle: {
-    fontSize: 24,
-
-    fontWeight: '700',
-
-    marginBottom: 20,
-
-    color: '#1a4d2e',
-
-    textAlign: 'center',
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 8,
   },
-
-  button: {
-    backgroundColor: '#1a4d2e',
-
-    paddingVertical: 16,
-
-    borderRadius: 16,
-
-    marginBottom: 16,
-
-    alignItems: 'center',
+  card: {
+    width: "47%",
+    borderRadius: 20,
+    padding: 20,
+    justifyContent: "space-between",
+    minHeight: 120,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
   },
-
-  buttonText: {
-    color: '#fff',
-
-    fontSize: 16,
-
-    fontWeight: '700',
+  cardPrimary: {
+    backgroundColor: COLORS.primary,
+  },
+  cardSurface: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  cardAccent: {
+    backgroundColor: COLORS.accent,
+  },
+  cardLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: COLORS.foreground,
+    marginTop: 16,
+  },
+  cardLabelLight: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: COLORS.surface,
+    marginTop: 16,
   },
 });

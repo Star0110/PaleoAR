@@ -2,6 +2,11 @@
   "expo": {
     "name": "PaleoAR",
     "slug": "PaleoAR",
+    "scheme": "paleoar",
+    "notification": {
+      "icon": "./src/assets/PaleoAR_icono.png",
+      "color": "#1a4d2e"
+    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/PaleoAR_icono.png",
@@ -13,14 +18,21 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.paleoar.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./src/assets/PaleoAR_icono.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.paleoar.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyB_qm8Y-3xNB253ipnaLsotc2iSHDuW5W4"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
