@@ -1,0 +1,11 @@
+npm install firebase
+
+npm install @react-navigation/native
+npm install @react-navigation/native-stack
+
+npx expo install react-native-screens
+npx expo install react-native-safe-area-context
+npx expo install react-native-gesture-handler
+npx expo install react-native-reanimated
+
+npm install react-native-vector-icons
