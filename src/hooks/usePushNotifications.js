@@ -1,37 +1,44 @@
 import { useEffect, useRef } from "react";
 import * as Notifications from "expo-notifications";
-import { useNavigation } from "@react-navigation/native";
 import {
   registerForPushNotifications,
   saveUserToken,
 } from "../services/notificationsService";
 
-export default function usePushNotifications(user) {
-  const navigation = useNavigation();
-  const notificationListener = useRef();
-  const responseListener = useRef();
+export default function usePushNotifications(user, navigation) {
+  const notificationListener = useRef(null);
+  const responseListener = useRef(null);
 
   useEffect(() => {
     if (!user) return;
 
-    // Registrar y guardar token
+    // Registrar token
     registerForPushNotifications().then((token) => {
-      if (token) saveUserToken(user.uid, token);
+      if (token) {
+        saveUserToken(user.uid, token);
+      }
     });
 
-    // Listener: notificación llega con app abierta
-    notificationListener.current = Notifications.addNotificationReceivedListener(() => {
-      // El handler ya la muestra; solo se puede disparar lógica adicional aquí
-    });
+    // Notificación recibida
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener(() => {
+        // lógica opcional
+      });
 
-    // Listener: usuario toca la notificación
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(() => {
-      navigation.navigate("Notifications");
-    });
+    // Usuario toca notificación
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener(() => {
+        navigation?.navigate("Notifications");
+      });
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
+      if (notificationListener.current) {
+        notificationListener.current.remove();
+      }
+
+      if (responseListener.current) {
+        responseListener.current.remove();
+      }
     };
   }, [user]);
 }

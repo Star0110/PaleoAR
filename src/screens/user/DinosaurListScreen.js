@@ -12,6 +12,8 @@ import {
   UIManager,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Video, ResizeMode } from "expo-av";
+
 import { getDinosaurs } from "../../services/dinosaurService";
 import Header from "../../components/Header";
 import { COLORS } from "../../styles/colors";
@@ -27,7 +29,12 @@ function SkeletonCard() {
       <View style={styles.skeletonInfo}>
         <View style={styles.skeletonLine} />
         <View style={[styles.skeletonLine, { width: "50%", marginTop: 8 }]} />
-        <View style={[styles.skeletonLine, { width: "90%", marginTop: 8, height: 10 }]} />
+        <View
+          style={[
+            styles.skeletonLine,
+            { width: "90%", marginTop: 8, height: 10 },
+          ]}
+        />
       </View>
     </View>
   );
@@ -37,9 +44,13 @@ function DinoCard({ item }) {
   const [expanded, setExpanded] = useState(false);
 
   const toggle = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    LayoutAnimation.configureNext(
+      LayoutAnimation.Presets.easeInEaseOut
+    );
     setExpanded((v) => !v);
   };
+
+  const isVideo = item.tipo === "video";
 
   return (
     <TouchableOpacity
@@ -49,19 +60,59 @@ function DinoCard({ item }) {
     >
       {/* Fila principal */}
       <View style={styles.row}>
-        <Image source={{ uri: item.mediaURL }} style={styles.thumb} />
+        {isVideo ? (
+          <View style={styles.videoThumbContainer}>
+            <Ionicons
+              name="play-circle"
+              size={38}
+              color="#fff"
+              style={styles.playIcon}
+            />
+
+            <Video
+              source={{ uri: item.mediaURL }}
+              style={styles.thumb}
+              resizeMode={ResizeMode.COVER}
+              shouldPlay
+              isLooping
+              isMuted
+            />
+          </View>
+        ) : (
+          <Image
+            source={{ uri: item.mediaURL }}
+            style={styles.thumb}
+          />
+        )}
+
         <View style={styles.info}>
           <View style={styles.cardHeader}>
-            <Text style={styles.name}>{item.nombre}</Text>
+            <Text style={styles.name}>
+              {item.nombre}
+            </Text>
+
             <View style={styles.eraPill}>
-              <Text style={styles.eraText}>{item.era}</Text>
+              <Text style={styles.eraText}>
+                {item.era}
+              </Text>
             </View>
           </View>
-          <Text style={styles.sub}>{item.dieta}</Text>
+
+          <Text style={styles.sub}>
+            {item.dieta}
+          </Text>
+
           {!expanded && (
             <View style={styles.verMasRow}>
-              <Ionicons name="add-circle-outline" size={14} color={COLORS.primary} />
-              <Text style={styles.verMasText}>Ver información</Text>
+              <Ionicons
+                name="add-circle-outline"
+                size={14}
+                color={COLORS.primary}
+              />
+
+              <Text style={styles.verMasText}>
+                Ver información
+              </Text>
             </View>
           )}
         </View>
@@ -72,21 +123,73 @@ function DinoCard({ item }) {
         <View style={styles.detail}>
           <View style={styles.detailDivider} />
 
-          <Image source={{ uri: item.mediaURL }} style={styles.detailImage} resizeMode="cover" />
+          {isVideo ? (
+            <Video
+              source={{ uri: item.mediaURL }}
+              style={styles.detailImage}
+              resizeMode={ResizeMode.COVER}
+              shouldPlay
+              isLooping
+              isMuted={false}
+              useNativeControls
+            />
+          ) : (
+            <Image
+              source={{ uri: item.mediaURL }}
+              style={styles.detailImage}
+              resizeMode="cover"
+            />
+          )}
 
           <View style={styles.pills}>
             <View style={styles.pill}>
-              <Ionicons name="leaf-outline" size={12} color={COLORS.primary} />
-              <Text style={styles.pillText}>{item.dieta}</Text>
+              <Ionicons
+                name="leaf-outline"
+                size={12}
+                color={COLORS.primary}
+              />
+
+              <Text style={styles.pillText}>
+                {item.dieta}
+              </Text>
             </View>
+
             <View style={styles.pill}>
-              <Ionicons name="time-outline" size={12} color={COLORS.primary} />
-              <Text style={styles.pillText}>{item.era}</Text>
+              <Ionicons
+                name="time-outline"
+                size={12}
+                color={COLORS.primary}
+              />
+
+              <Text style={styles.pillText}>
+                {item.era}
+              </Text>
+            </View>
+
+            <View style={styles.pill}>
+              <Ionicons
+                name={
+                  isVideo
+                    ? "videocam-outline"
+                    : "image-outline"
+                }
+                size={12}
+                color={COLORS.primary}
+              />
+
+              <Text style={styles.pillText}>
+                {isVideo ? "Video" : "Imagen"}
+              </Text>
             </View>
           </View>
 
-          <Text style={styles.detailLabel}>Dato curioso</Text>
-          <Text style={styles.detailText}>{item.datoCurioso}</Text>
+          <Text style={styles.detailLabel}>
+            Dato curioso
+          </Text>
+
+          <Text style={styles.detailText}>
+            {item.datoCurioso}
+          </Text>
         </View>
       )}
     </TouchableOpacity>
@@ -105,25 +208,53 @@ export default function DinosaurListScreen() {
       .finally(() => setLoading(false));
   }, []);
 
-  const renderItem = useCallback(({ item }) => <MemoizedDinoCard item={item} />, []);
+  const renderItem = useCallback(
+    ({ item }) => (
+      <MemoizedDinoCard item={item} />
+    ),
+    []
+  );
 
   return (
     <SafeAreaView style={styles.safe}>
       <Header />
+
       <FlatList
-        data={loading ? Array(4).fill(null) : dinosaurs}
-        keyExtractor={(item, i) => (item?.id ?? `skeleton-${i}`)}
-        renderItem={loading ? () => <SkeletonCard /> : renderItem}
+        data={
+          loading
+            ? Array(4).fill(null)
+            : dinosaurs
+        }
+        keyExtractor={(item, i) =>
+          item?.id ?? `skeleton-${i}`
+        }
+        renderItem={
+          loading
+            ? () => <SkeletonCard />
+            : renderItem
+        }
         contentContainerStyle={styles.list}
-        ListHeaderComponent={<Text style={styles.sectionTitle}>Dinosaurios</Text>}
+        ListHeaderComponent={
+          <Text style={styles.sectionTitle}>
+            Dinosaurios
+          </Text>
+        }
       />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.surface },
-  list: { padding: 16, paddingBottom: 32 },
+  safe: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+  },
+
+  list: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+
   sectionTitle: {
     fontSize: 26,
     fontWeight: "900",
@@ -145,29 +276,57 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 6,
   },
+
   cardExpanded: {
     borderColor: COLORS.primaryBorder,
     elevation: 4,
     shadowOpacity: 0.1,
   },
+
   row: {
     flexDirection: "row",
     alignItems: "center",
   },
+
   thumb: {
     width: 72,
     height: 72,
     borderRadius: 14,
     backgroundColor: COLORS.primarySurface,
   },
-  info: { flex: 1, marginLeft: 12 },
+
+  videoThumbContainer: {
+    position: "relative",
+  },
+
+  playIcon: {
+    position: "absolute",
+    zIndex: 2,
+    top: "50%",
+    left: "50%",
+    marginTop: -19,
+    marginLeft: -19,
+  },
+
+  info: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 4,
   },
-  name: { fontSize: 16, fontWeight: "700", color: COLORS.textPrimary, flex: 1 },
+
+  name: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+
   eraPill: {
     backgroundColor: COLORS.primarySurface,
     borderRadius: 10,
@@ -175,13 +334,25 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     marginLeft: 8,
   },
-  eraText: { fontSize: 10, fontWeight: "700", color: COLORS.primary },
-  sub: { fontSize: 12, color: COLORS.muted, marginBottom: 6 },
+
+  eraText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: COLORS.primary,
+  },
+
+  sub: {
+    fontSize: 12,
+    color: COLORS.muted,
+    marginBottom: 6,
+  },
+
   verMasRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
   },
+
   verMasText: {
     fontSize: 12,
     fontWeight: "600",
@@ -194,21 +365,26 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.border,
     marginVertical: 14,
   },
+
   detail: {
     marginTop: 4,
   },
+
   detailImage: {
     width: "100%",
-    height: 180,
+    height: 220,
     borderRadius: 12,
-    backgroundColor: COLORS.primarySurface,
+    backgroundColor: "#000",
     marginBottom: 12,
   },
+
   pills: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginBottom: 14,
   },
+
   pill: {
     flexDirection: "row",
     alignItems: "center",
@@ -220,11 +396,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
   },
+
   pillText: {
     fontSize: 12,
     fontWeight: "600",
     color: COLORS.primary,
   },
+
   detailLabel: {
     fontSize: 11,
     fontWeight: "700",
@@ -233,6 +411,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginBottom: 6,
   },
+
   detailText: {
     fontSize: 14,
     color: COLORS.textSecondary,
@@ -240,14 +419,23 @@ const styles = StyleSheet.create({
   },
 
   // Skeleton
-  skeletonCard: { opacity: 0.5 },
+  skeletonCard: {
+    opacity: 0.5,
+  },
+
   skeletonThumb: {
     width: 72,
     height: 72,
     borderRadius: 14,
     backgroundColor: COLORS.border,
   },
-  skeletonInfo: { flex: 1, marginLeft: 12, justifyContent: "center" },
+
+  skeletonInfo: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: "center",
+  },
+
   skeletonLine: {
     height: 13,
     borderRadius: 6,

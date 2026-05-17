@@ -1,6 +1,15 @@
 import React, { useContext } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+
 import { AuthContext } from "../../context/AuthContext";
 import Header from "../../components/Header";
 import { COLORS } from "../../styles/colors";
@@ -8,41 +17,74 @@ import { COLORS } from "../../styles/colors";
 export default function HomeScreen() {
   const { role } = useContext(AuthContext);
 
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView style={styles.safe}>
       <Header />
-      <View style={styles.container}>
 
+      <View style={styles.container}>
         <View style={styles.hero}>
           <Text style={styles.greeting}>Bienvenido, Explorador</Text>
-          <Text style={styles.heroTitle}>Descubre el{"\n"}pasado jurásico</Text>
+
+          <Text style={styles.heroTitle}>
+            Descubre el{"\n"}pasado jurásico
+          </Text>
+
           <Text style={styles.heroSub}>
             Escanea fósiles, explora el mapa y colecciona dinosaurios en AR.
           </Text>
         </View>
 
         <View style={styles.grid}>
-          <TouchableOpacity style={[styles.card, styles.cardPrimary]} activeOpacity={0.85}>
+          {/* ESCANEAR */}
+          <TouchableOpacity
+            style={[styles.card, styles.cardPrimary]}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("Escanear")}
+          >
             <Ionicons name="scan" size={28} color={COLORS.surface} />
             <Text style={styles.cardLabelLight}>Escanear Fósil</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.card, styles.cardSurface]} activeOpacity={0.85}>
-            <Ionicons name="layers-outline" size={28} color={COLORS.primary} />
+          {/* COLECCIÓN */}
+          <TouchableOpacity
+            style={[styles.card, styles.cardSurface]}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("Dinosaurios")}
+          >
+            <Ionicons
+              name="layers-outline"
+              size={28}
+              color={COLORS.primary}
+            />
             <Text style={styles.cardLabel}>Mi Colección</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.card, styles.cardSurface]} activeOpacity={0.85}>
+          {/* MAPA */}
+          <TouchableOpacity
+            style={[styles.card, styles.cardSurface]}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("Mapa")}
+          >
             <Ionicons name="map-outline" size={28} color={COLORS.primary} />
             <Text style={styles.cardLabel}>Mapa AR</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.card, styles.cardAccent]} activeOpacity={0.85}>
-            <Ionicons name="trophy-outline" size={28} color={COLORS.surface} />
+          {/* LOGROS */}
+          <TouchableOpacity
+            style={[styles.card, styles.cardAccent]}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("Perfil")}
+          >
+            <Ionicons
+              name="trophy-outline"
+              size={28}
+              color={COLORS.surface}
+            />
             <Text style={styles.cardLabelLight}>Logros</Text>
           </TouchableOpacity>
         </View>
-
       </View>
     </SafeAreaView>
   );
