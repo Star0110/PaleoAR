@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import BottomTabNavigator from "./BottomTabNavigator";
 import EditDinosaursScreen from "../screens/admin/EditDinosaursScreen";
 import AddAdminScreen from "../screens/admin/AddAdminScreen";
+import AdminsScreen from "../screens/admin/AdminsScreen";
 import LocationPickerScreen from "../screens/admin/LocationPickerScreen";
 import PlayersScreen from "../screens/admin/PlayersScreen";
 import SendNotificationScreen from "../screens/admin/SendNotificationScreen";
@@ -29,6 +30,11 @@ export default function AppNavigator() {
         name="AddAdmin"
         component={AddAdminScreen}
         options={{ headerShown: true, title: "Nuevo administrador" }}
+      />
+      <Stack.Screen
+        name="Admins"
+        component={AdminsScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

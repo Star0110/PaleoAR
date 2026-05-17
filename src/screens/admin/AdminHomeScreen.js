@@ -29,6 +29,12 @@ const MENU = [
     label: "Agregar Administrador",
     desc: "Crea una cuenta con permisos de admin",
   },
+  {
+    route: "Admins",
+    icon: "shield-checkmark-outline",
+    label: "Ver Administradores",
+    desc: "Lista y gestiona las cuentas de administrador",
+  },
 ];
 
 export default function AdminHomeScreen({ navigation }) {
@@ -74,9 +80,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     padding: 20,
   },
-  hero: {
-    paddingVertical: 24,
-  },
+  hero: { paddingVertical: 24 },
   eyebrow: {
     fontSize: 12,
     fontWeight: "700",
@@ -91,10 +95,7 @@ const styles = StyleSheet.create({
     color: COLORS.foreground,
     lineHeight: 38,
   },
-  menu: {
-    gap: 12,
-    marginTop: 8,
-  },
+  menu: { gap: 12, marginTop: 8 },
   card: {
     flexDirection: "row",
     alignItems: "center",

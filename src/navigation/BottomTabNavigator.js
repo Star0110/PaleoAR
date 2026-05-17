@@ -12,6 +12,7 @@ import DinosaurListScreen from "../screens/user/DinosaurListScreen";
 import MapScreen from "../screens/user/MapScreen";
 import ProfileScreen from "../screens/user/ProfileScreen";
 import AdminHomeScreen from "../screens/admin/AdminHomeScreen";
+import AdminProfileScreen from "../screens/admin/AdminProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -56,7 +57,7 @@ function AdminTabs() {
   return (
     <Tab.Navigator screenOptions={tabScreenOptions}>
       <Tab.Screen name="Inicio" component={AdminHomeScreen} />
-      <Tab.Screen name="Perfil" component={ProfileScreen} />
+      <Tab.Screen name="Perfil" component={AdminProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -65,7 +66,6 @@ export default function BottomTabNavigator() {
   const { role: realRole } = useContext(AuthContext);
   const [debugRole, setDebugRole] = useState(null);
   const role = debugRole ?? realRole;
-
   const isAdmin = role === "admin";
 
   return (
@@ -80,18 +80,14 @@ export default function BottomTabNavigator() {
             onPress={() => setDebugRole("user")}
             activeOpacity={0.7}
           >
-            <Text style={[styles.debugBtnText, !isAdmin && styles.debugBtnTextActive]}>
-              User
-            </Text>
+            <Text style={[styles.debugBtnText, !isAdmin && styles.debugBtnTextActive]}>User</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.debugBtn, isAdmin && styles.debugBtnActive]}
             onPress={() => setDebugRole("admin")}
             activeOpacity={0.7}
           >
-            <Text style={[styles.debugBtnText, isAdmin && styles.debugBtnTextActive]}>
-              Admin
-            </Text>
+            <Text style={[styles.debugBtnText, isAdmin && styles.debugBtnTextActive]}>Admin</Text>
           </TouchableOpacity>
         </View>
       </View>

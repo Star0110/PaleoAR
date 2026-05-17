@@ -9,10 +9,13 @@ export const getPlayers = async () => {
 };
 
 export const getPlayerVisitas = async (userId) => {
-  const snap = await getDoc(doc(db, "visitas", userId));
-  if (!snap.exists()) return [];
-  const data = snap.data();
-  // Soporta array "registros" o mapa de dinoId -> info
-  if (Array.isArray(data.registros)) return data.registros;
-  return Object.values(data);
+  try {
+    const registrosRef = collection(db, "visitas", userId, "registros");
+    const snap = await getDocs(registrosRef);
+    if (snap.empty) return [];
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.log("Error getPlayerVisitas:", e);
+    return [];
+  }
 };

@@ -1,20 +1,16 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  ActivityIndicator,
-  Modal,
-  ScrollView,
+  View, Text, FlatList, TouchableOpacity, StyleSheet,
+  SafeAreaView, ActivityIndicator, Modal, ScrollView, Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "../../services/firebase";
 import { getPlayers, getPlayerVisitas } from "../../services/visitasService";
 import { getDinosaurs } from "../../services/dinosaurService";
 import Header from "../../components/Header";
 import { COLORS } from "../../styles/colors";
+import { calcularNivel, PUNTOS_POR_FOSIL } from "../../services/gamificationService";
 
 function LevelBadge({ level }) {
   return (
@@ -57,8 +53,34 @@ export default function PlayersScreen() {
     setLoadingVisitas(false);
   };
 
+  const confirmDeletePlayer = (player) => {
+    Alert.alert(
+      "Eliminar jugador",
+      `¿Seguro que deseas eliminar a ${player.name}? Esta acción no se puede deshacer.`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Eliminar", style: "destructive", onPress: () => deletePlayer(player.id) },
+      ]
+    );
+  };
+
+  const deletePlayer = async (id) => {
+    try {
+      await deleteDoc(doc(db, "users", id));
+      setPlayers((prev) => prev.filter((p) => p.id !== id));
+      if (selected?.id === id) setSelected(null);
+    } catch (e) {
+      Alert.alert("Error", "No se pudo eliminar el jugador.");
+    }
+  };
+
   const dinoMap = Object.fromEntries(dinosaurs.map((d) => [d.id, d]));
   const totalDinos = dinosaurs.length;
+
+  // ── Usa exactamente la misma función que useGamification ──────────────────
+  const nivelCalculado = calcularNivel(visitas.length, totalDinos);
+  const puntosCalculados = visitas.length * PUNTOS_POR_FOSIL;
+  // ─────────────────────────────────────────────────────────────────────────
 
   const renderPlayer = useCallback(({ item }) => (
     <TouchableOpacity style={styles.card} onPress={() => openPlayer(item)} activeOpacity={0.8}>
@@ -70,9 +92,18 @@ export default function PlayersScreen() {
         <Text style={styles.cardEmail}>{item.email}</Text>
       </View>
       <View style={styles.cardRight}>
-        <LevelBadge level={item.level ?? 1} />
-        <Text style={styles.cardPoints}>{item.points ?? 0} pts</Text>
+        {/* nivel en la lista usa el guardado en Firestore (sincronizado por useGamification) */}
+        <LevelBadge level={item.level ?? 0} />
+        <Text style={styles.cardPoints}>{(item.points ?? 0)} pts</Text>
       </View>
+      <TouchableOpacity
+        style={styles.deleteBtn}
+        onPress={() => confirmDeletePlayer(item)}
+        activeOpacity={0.7}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Ionicons name="trash-outline" size={16} color="#EF4444" />
+      </TouchableOpacity>
       <Ionicons name="chevron-forward" size={16} color={COLORS.mutedLight} style={{ marginLeft: 4 }} />
     </TouchableOpacity>
   ), []);
@@ -112,7 +143,6 @@ export default function PlayersScreen() {
         }
       />
 
-      {/* MODAL DETALLE JUGADOR */}
       <Modal visible={!!selected} animationType="slide" onRequestClose={() => setSelected(null)}>
         <SafeAreaView style={styles.safe}>
           <View style={styles.modalHeader}>
@@ -120,16 +150,23 @@ export default function PlayersScreen() {
               <Ionicons name="close" size={24} color={COLORS.foreground} />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>{selected?.name}</Text>
-            <View style={{ width: 24 }} />
+            <TouchableOpacity
+              onPress={() => selected && confirmDeletePlayer(selected)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              style={styles.modalDeleteBtn}
+            >
+              <Ionicons name="trash-outline" size={20} color="#EF4444" />
+            </TouchableOpacity>
           </View>
 
           <ScrollView contentContainerStyle={styles.modalContent}>
-            {/* Stats */}
+
+            {/* Stats — nivel y puntos calculados con la lógica real de gamification */}
             <View style={styles.statsRow}>
-              <StatPill icon="trophy-outline" value={selected?.level ?? 1} label="Nivel" />
-              <StatPill icon="star-outline" value={selected?.points ?? 0} label="Puntos" />
-              <StatPill icon="eye-outline" value={visitas.length} label="Escaneados" />
-              <StatPill icon="layers-outline" value={totalDinos} label="Total" />
+              <StatPill icon="trophy-outline" value={loadingVisitas ? "…" : nivelCalculado}   label="Nivel"      />
+              <StatPill icon="star-outline"   value={loadingVisitas ? "…" : puntosCalculados} label="Puntos"     />
+              <StatPill icon="eye-outline"    value={loadingVisitas ? "…" : visitas.length}   label="Escaneados" />
+              <StatPill icon="layers-outline" value={totalDinos}                              label="Total"      />
             </View>
 
             {/* Progreso */}
@@ -139,7 +176,7 @@ export default function PlayersScreen() {
                 <View
                   style={[
                     styles.progressFill,
-                    { width: `${Math.min((visitas.length / totalDinos) * 100, 100)}%` },
+                    { width: totalDinos > 0 ? `${Math.min((visitas.length / totalDinos) * 100, 100)}%` : "0%" },
                   ]}
                 />
               </View>
@@ -148,7 +185,7 @@ export default function PlayersScreen() {
               </Text>
             </View>
 
-            {/* Fósiles escaneados */}
+            {/* Fósiles descubiertos */}
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>Fósiles descubiertos</Text>
               {loadingVisitas ? (
@@ -196,6 +233,7 @@ export default function PlayersScreen() {
                   ))}
               </View>
             )}
+
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -223,7 +261,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primaryBorder,
   },
   totalText: { fontSize: 12, fontWeight: "600", color: COLORS.primary },
-
   card: {
     flexDirection: "row",
     alignItems: "center",
@@ -266,11 +303,19 @@ const styles = StyleSheet.create({
   },
   levelText: { fontSize: 11, fontWeight: "700", color: COLORS.accent },
   cardPoints: { fontSize: 11, color: COLORS.muted },
-
+  deleteBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: "#FEF2F2",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    marginRight: 4,
+  },
   empty: { alignItems: "center", paddingTop: 60, gap: 12 },
   emptyText: { fontSize: 14, color: COLORS.muted },
-
-  // Modal
   modalHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -281,13 +326,18 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.border,
   },
   modalTitle: { fontSize: 17, fontWeight: "700", color: COLORS.textPrimary },
-  modalContent: { padding: 20, paddingBottom: 40 },
-
-  statsRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 20,
+  modalDeleteBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#FEF2F2",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FECACA",
   },
+  modalContent: { padding: 20, paddingBottom: 40 },
+  statsRow: { flexDirection: "row", gap: 8, marginBottom: 20 },
   statPill: {
     flex: 1,
     backgroundColor: COLORS.primarySurface,
@@ -300,7 +350,6 @@ const styles = StyleSheet.create({
   },
   statValue: { fontSize: 18, fontWeight: "900", color: COLORS.primary },
   statLabel: { fontSize: 10, color: COLORS.muted, fontWeight: "600" },
-
   section: { marginBottom: 24 },
   sectionLabel: {
     fontSize: 11,
@@ -310,7 +359,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginBottom: 12,
   },
-
   progressBar: {
     height: 10,
     backgroundColor: COLORS.primarySurface,
@@ -318,13 +366,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: 6,
   },
-  progressFill: {
-    height: "100%",
-    backgroundColor: COLORS.primary,
-    borderRadius: 5,
-  },
+  progressFill: { height: "100%", backgroundColor: COLORS.primary, borderRadius: 5 },
   progressText: { fontSize: 12, color: COLORS.muted },
-
   visitaRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -344,14 +387,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.primaryBorder,
   },
-  visitaIconPending: {
-    backgroundColor: COLORS.background,
-    borderColor: COLORS.border,
-  },
+  visitaIconPending: { backgroundColor: COLORS.background, borderColor: COLORS.border },
   visitaNombre: { fontSize: 14, fontWeight: "600", color: COLORS.textPrimary },
   visitaNombrePending: { fontSize: 14, color: COLORS.muted },
   visitaFecha: { fontSize: 11, color: COLORS.muted, marginTop: 2 },
-
   emptyVisitas: { alignItems: "center", paddingVertical: 24, gap: 10 },
   emptyVisitasText: { fontSize: 13, color: COLORS.muted },
 });
