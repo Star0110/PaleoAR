@@ -74,13 +74,13 @@ export default function PlayersScreen() {
     }
   };
 
-  const dinoMap = Object.fromEntries(dinosaurs.map((d) => [d.id, d]));
+  // ✅ FIX: indexar por targetName (igual que ProfileScreen) en vez de por id
+  const dinoMap = Object.fromEntries(dinosaurs.map((d) => [d.targetName, d]));
   const totalDinos = dinosaurs.length;
 
-  // ── Usa exactamente la misma función que useGamification ──────────────────
+  // Usa exactamente la misma función que useGamification
   const nivelCalculado = calcularNivel(visitas.length, totalDinos);
   const puntosCalculados = visitas.length * PUNTOS_POR_FOSIL;
-  // ─────────────────────────────────────────────────────────────────────────
 
   const renderPlayer = useCallback(({ item }) => (
     <TouchableOpacity style={styles.card} onPress={() => openPlayer(item)} activeOpacity={0.8}>
@@ -197,14 +197,15 @@ export default function PlayersScreen() {
                 </View>
               ) : (
                 visitas.map((v, i) => {
-                  const dino = dinoMap[v.dinosaurId] ?? {};
+                  // ✅ FIX: buscar por targetName igual que ProfileScreen
+                  const nombreReal = dinoMap[v.targetName]?.nombre ?? v.targetName ?? "Desconocido";
                   return (
                     <View key={i} style={styles.visitaRow}>
                       <View style={styles.visitaIcon}>
                         <Ionicons name="checkmark" size={14} color={COLORS.primary} />
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.visitaNombre}>{v.nombre ?? dino.nombre ?? "Desconocido"}</Text>
+                        <Text style={styles.visitaNombre}>{nombreReal}</Text>
                         {v.timestamp && (
                           <Text style={styles.visitaFecha}>
                             {new Date(v.timestamp?.seconds * 1000).toLocaleDateString("es-MX")}
@@ -222,7 +223,8 @@ export default function PlayersScreen() {
               <View style={styles.section}>
                 <Text style={styles.sectionLabel}>Fósiles pendientes</Text>
                 {dinosaurs
-                  .filter((d) => !visitas.some((v) => v.dinosaurId === d.id))
+                  // ✅ FIX: filtrar por targetName igual que en descubiertos
+                  .filter((d) => !visitas.some((v) => v.targetName === d.targetName))
                   .map((d) => (
                     <View key={d.id} style={[styles.visitaRow, styles.visitaPending]}>
                       <View style={[styles.visitaIcon, styles.visitaIconPending]}>
