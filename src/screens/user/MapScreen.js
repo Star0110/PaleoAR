@@ -18,6 +18,7 @@ import MapView, {
 
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
+import { Video } from "expo-av";
 
 import { getDinosaurs } from "../../services/dinosaurService";
 import Header from "../../components/Header";
@@ -90,14 +91,32 @@ export default function MapScreen() {
     );
   };
 
+  const renderMedia = (item, style) => {
+    if (item.tipo === "video") {
+      return (
+        <Video
+          source={{ uri: item.mediaURL }}
+          style={style}
+          resizeMode="cover"
+          shouldPlay
+          isLooping
+          isMuted
+        />
+      );
+    }
+
+    return (
+      <Image
+        source={{ uri: item.mediaURL }}
+        style={style}
+      />
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator
-          size="large"
-          color={COLORS.primary}
-        />
-
+        <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={styles.loadingText}>
           Cargando mapa...
         </Text>
@@ -127,10 +146,7 @@ export default function MapScreen() {
               activeOpacity={0.8}
               onPress={() => moveToDinosaur(dino)}
             >
-              <Image
-                source={{ uri: dino.mediaURL }}
-                style={styles.legendImage}
-              />
+              {renderMedia(dino, styles.legendImage)}
 
               <View style={styles.legendInfo}>
                 <Text
@@ -164,7 +180,6 @@ export default function MapScreen() {
           }
         }
       >
-        {/* CAMINITO */}
         {selectedDino && userLocation && (
           <Polyline
             coordinates={[
@@ -179,7 +194,6 @@ export default function MapScreen() {
           />
         )}
 
-        {/* DINOSAURIOS */}
         {dinosaurs.map((dino) => {
           const isVideo = dino.tipo === "video";
 
@@ -192,26 +206,31 @@ export default function MapScreen() {
               }}
               onPress={() => setSelectedDino(dino)}
             >
-              {/* PIN */}
               <View style={styles.markerContainer}>
                 <View style={styles.marker}>
-                  <Ionicons
-                    name="paw"
-                    size={18}
-                    color="#fff"
-                  />
+                  <Ionicons name="paw" size={18} color="#fff" />
                 </View>
-
                 <View style={styles.markerTip} />
               </View>
 
-              {/* POPUP */}
+              {/* CALL OUT */}
               <Callout tooltip>
                 <View style={styles.callout}>
-                  <Image
-                    source={{ uri: dino.mediaURL }}
-                    style={styles.calloutImg}
-                  />
+                  {isVideo ? (
+                    <Video
+                      source={{ uri: dino.mediaURL }}
+                      style={styles.calloutImg}
+                      resizeMode="cover"
+                      shouldPlay
+                      isLooping
+                      isMuted
+                    />
+                  ) : (
+                    <Image
+                      source={{ uri: dino.mediaURL }}
+                      style={styles.calloutImg}
+                    />
+                  )}
 
                   <View style={styles.calloutContent}>
                     <Text style={styles.calloutName}>
@@ -229,7 +248,6 @@ export default function MapScreen() {
                           size={11}
                           color={COLORS.primary}
                         />
-
                         <Text style={styles.badgeText}>
                           Zona AR
                         </Text>
@@ -237,19 +255,12 @@ export default function MapScreen() {
 
                       <View style={styles.badge}>
                         <Ionicons
-                          name={
-                            isVideo
-                              ? "videocam"
-                              : "image"
-                          }
+                          name={isVideo ? "videocam" : "image"}
                           size={11}
                           color={COLORS.primary}
                         />
-
                         <Text style={styles.badgeText}>
-                          {isVideo
-                            ? "Video"
-                            : "Imagen"}
+                          {isVideo ? "Video" : "Imagen"}
                         </Text>
                       </View>
                     </View>
