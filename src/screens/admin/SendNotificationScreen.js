@@ -91,7 +91,9 @@ export default function SendNotificationScreen() {
         Alert.alert("Enviado ✓", `Notificación enviada a ${targets.length} ${label}.`);
 
       } else {
-        await createNotificacion({ titulo: t, cuerpo: c, userId: usuarioSeleccionado.uid });
+        const uid = usuarioSeleccionado.id ?? usuarioSeleccionado.uid;
+        if (!uid) throw new Error("Usuario sin ID");
+        await createNotificacion({ titulo: t, cuerpo: c, userId: uid });
         await sendPushNotification(usuarioSeleccionado.expoPushToken, t, c);
         Alert.alert("Enviado ✓", `Notificación enviada a ${usuarioSeleccionado.name}.`);
       }

@@ -9,6 +9,7 @@ import AdminsScreen from "../screens/admin/AdminsScreen";
 import LocationPickerScreen from "../screens/admin/LocationPickerScreen";
 import PlayersScreen from "../screens/admin/PlayersScreen";
 import SendNotificationScreen from "../screens/admin/SendNotificationScreen";
+import StatsScreen from "../screens/admin/StatsScreen";
 import NotificationsScreen from "../screens/user/NotificationsScreen";
 import usePushNotifications from "../hooks/usePushNotifications";
 
@@ -26,6 +27,7 @@ export default function AppNavigator() {
       <Stack.Screen name="LocationPicker" component={LocationPickerScreen} />
       <Stack.Screen name="Players" component={PlayersScreen} />
       <Stack.Screen name="SendNotification" component={SendNotificationScreen} />
+      <Stack.Screen name="Stats" component={StatsScreen} />
       <Stack.Screen
         name="AddAdmin"
         component={AddAdminScreen}

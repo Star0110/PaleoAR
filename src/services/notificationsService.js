@@ -8,7 +8,7 @@ import {
   doc,
   updateDoc,
   query,
-  orderBy,
+  where,
   serverTimestamp,
   onSnapshot,
 } from "firebase/firestore";
@@ -87,16 +87,36 @@ export const createNotificacion = async ({ titulo, cuerpo, userId = null }) => {
 
 // Suscripción en tiempo real a las notificaciones del usuario
 export const subscribeToNotificaciones = (userId, callback) => {
-  const q = query(
+  const qGlobal = query(
     collection(db, "notificaciones"),
-    orderBy("timestamp", "desc")
+    where("userId", "==", null)
   );
-  return onSnapshot(q, (snap) => {
-    const items = snap.docs
-      .map((d) => ({ id: d.id, ...d.data() }))
-      .filter((n) => n.userId === null || n.userId === userId);
-    callback(items);
+  const qPersonal = query(
+    collection(db, "notificaciones"),
+    where("userId", "==", userId)
+  );
+
+  let globalItems = [];
+  let personalItems = [];
+
+  const merge = () => {
+    const combined = [...globalItems, ...personalItems].sort(
+      (a, b) => (b.timestamp?.seconds ?? 0) - (a.timestamp?.seconds ?? 0)
+    );
+    callback(combined);
+  };
+
+  const unsubGlobal = onSnapshot(qGlobal, (snap) => {
+    globalItems = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    merge();
   });
+
+  const unsubPersonal = onSnapshot(qPersonal, (snap) => {
+    personalItems = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    merge();
+  });
+
+  return () => { unsubGlobal(); unsubPersonal(); };
 };
 
 // Marca una notificación como leída

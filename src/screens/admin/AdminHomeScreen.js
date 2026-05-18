@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Header from "../../components/Header";
 import { COLORS } from "../../styles/colors";
@@ -16,6 +16,12 @@ const MENU = [
     icon: "people-outline",
     label: "Progreso de Jugadores",
     desc: "Monitorea qué fósiles ha escaneado cada usuario",
+  },
+  {
+    route: "Stats",
+    icon: "stats-chart-outline",
+    label: "Estadísticas",
+    desc: "Ranking de fósiles, jugadores más activos y más",
   },
   {
     route: "SendNotification",
@@ -41,8 +47,11 @@ export default function AdminHomeScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       <Header />
-      <View style={styles.container}>
-
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.hero}>
           <Text style={styles.eyebrow}>Panel de control</Text>
           <Text style={styles.title}>¿Qué deseas{"\n"}administrar?</Text>
@@ -67,68 +76,38 @@ export default function AdminHomeScreen({ navigation }) {
             </TouchableOpacity>
           ))}
         </View>
-
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.surface },
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    padding: 20,
-  },
+  scroll: { flex: 1, backgroundColor: COLORS.background },
+  container: { padding: 20, paddingBottom: 40 },
   hero: { paddingVertical: 24 },
   eyebrow: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: COLORS.primaryLight,
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-    marginBottom: 8,
+    fontSize: 12, fontWeight: "700", color: COLORS.primaryLight,
+    letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8,
   },
   title: {
-    fontSize: 32,
-    fontWeight: "900",
-    color: COLORS.foreground,
-    lineHeight: 38,
+    fontSize: 32, fontWeight: "900", color: COLORS.foreground, lineHeight: 38,
   },
   menu: { gap: 12, marginTop: 8 },
   card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.surface,
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    elevation: 2,
-    shadowColor: "#000",
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: COLORS.surface, borderRadius: 18, padding: 16,
+    borderWidth: 1, borderColor: COLORS.border,
+    elevation: 2, shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    gap: 14,
+    shadowOpacity: 0.06, shadowRadius: 6, gap: 14,
   },
   iconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 48, height: 48, borderRadius: 14,
     backgroundColor: COLORS.primarySurface,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "center", alignItems: "center",
   },
   cardText: { flex: 1 },
-  cardLabel: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
-    marginBottom: 3,
-  },
-  cardDesc: {
-    fontSize: 12,
-    color: COLORS.muted,
-    lineHeight: 17,
-  },
+  cardLabel: { fontSize: 15, fontWeight: "700", color: COLORS.textPrimary, marginBottom: 3 },
+  cardDesc: { fontSize: 12, color: COLORS.muted, lineHeight: 17 },
 });

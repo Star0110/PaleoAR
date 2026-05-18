@@ -137,13 +137,13 @@ export const resetEditableScans = async (
   newNombre
 ) => {
   try {
-    // 🔥 SOLO EDITABLES
+    
     if (!editableId?.startsWith("editable_")) {
       console.log("No es editable, no se hace reset");
       return;
     }
 
-    // 🔥 si no cambió el nombre
+    
     if (oldNombre?.trim() === newNombre?.trim()) {
       console.log("Nombre no cambió");
       return;
@@ -172,7 +172,7 @@ export const resetEditableScans = async (
 
       for (const reg of registrosSnap.docs) {
 
-        // 🔥 AQUÍ ESTA EL FIX IMPORTANTE
+        
         if (reg.id === editableId) {
           batch.delete(reg.ref);
           cambios++;
