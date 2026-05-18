@@ -22,6 +22,7 @@
       "bundleIdentifier": "com.paleoar.app"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/PaleoAR_icono.png",
         "backgroundColor": "#ffffff"
