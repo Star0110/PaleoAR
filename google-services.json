@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:182937126018:android:f203e4ae0779944029a09b",
+        "android_client_info": {
+          "package_name": "com.paleoar.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8HJHbxiSftNN9YNlj6hL5B-RRVLoBnEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:182937126018:android:471fba4a4af4f95f29a09b",
         "android_client_info": {
           "package_name": "com.stare.appar"
