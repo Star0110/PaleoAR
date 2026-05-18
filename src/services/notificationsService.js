@@ -1,20 +1,13 @@
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
+import Constants from "expo-constants";
 import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  query,
-  orderBy,
-  serverTimestamp,
-  onSnapshot,
+  collection, addDoc, getDocs, doc, updateDoc,
+  query, orderBy, serverTimestamp, onSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-// Configura cómo se muestran las notificaciones cuando la app está abierta
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -23,7 +16,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Registra el dispositivo y devuelve el Expo Push Token
 export const registerForPushNotifications = async () => {
   if (!Device.isDevice) return null;
 
@@ -46,47 +38,45 @@ export const registerForPushNotifications = async () => {
     });
   }
 
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
+  // ✅ projectId obligatorio en SDK 49+
+  const token = (
+    await Notifications.getExpoPushTokenAsync({
+      projectId: Constants.expoConfig?.extra?.eas?.projectId,
+    })
+  ).data;
+
   return token;
 };
 
-// Guarda el token en el documento del usuario
 export const saveUserToken = async (userId, token) => {
   if (!token) return;
   await updateDoc(doc(db, "users", userId), { expoPushToken: token });
 };
 
-// Envía una notificación push a un token vía Expo
 export const sendPushNotification = async (token, titulo, cuerpo) => {
-  await fetch("https://exp.host/--/api/v2/push/send", {
+  const res = await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      to: token,
-      title: titulo,
-      body: cuerpo,
-      sound: "default",
-    }),
+    body: JSON.stringify({ to: token, title: titulo, body: cuerpo, sound: "default" }),
   });
+  const data = await res.json();
+  if (data?.data?.status === "error") {
+    console.warn("Push error:", data.data.message);
+  }
 };
 
-// Guarda una notificación en Firestore (para historial in-app)
 export const createNotificacion = async ({ titulo, cuerpo, userId = null }) => {
   await addDoc(collection(db, "notificaciones"), {
     titulo,
     cuerpo,
-    userId, // null = global, string = personal
+    userId,
     timestamp: serverTimestamp(),
     leida: false,
   });
 };
 
-// Suscripción en tiempo real a las notificaciones del usuario
 export const subscribeToNotificaciones = (userId, callback) => {
-  const q = query(
-    collection(db, "notificaciones"),
-    orderBy("timestamp", "desc")
-  );
+  const q = query(collection(db, "notificaciones"), orderBy("timestamp", "desc"));
   return onSnapshot(q, (snap) => {
     const items = snap.docs
       .map((d) => ({ id: d.id, ...d.data() }))
@@ -95,12 +85,10 @@ export const subscribeToNotificaciones = (userId, callback) => {
   });
 };
 
-// Marca una notificación como leída
 export const marcarLeida = async (notifId) => {
   await updateDoc(doc(db, "notificaciones", notifId), { leida: true });
 };
 
-// Obtiene todos los tokens de usuarios (para envío masivo)
 export const getAllUserTokens = async () => {
   const snap = await getDocs(collection(db, "users"));
   return snap.docs
