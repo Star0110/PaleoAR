@@ -54,8 +54,8 @@ src/
 
 **Equipo**:
 - [@Star](https://github.com/Star0110) — Starenka Susana Ortiz Gallegos
-- [@Valentina](https://github.com/ValentinaVillarreal)Valentina Esquivel Villarreal
-- [@IsraelJP](https://github.com/IsraelJP)Israel Jiménez Palomino
+- [@Valentina](https://github.com/ValentinaVillarreal) - Valentina Esquivel Villarreal
+- [@IsraelJP](https://github.com/IsraelJP) - Israel Jiménez Palomino
 
 
 ## 📋 Alcance
